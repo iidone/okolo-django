@@ -11,7 +11,7 @@ try:
     from .local_settings import SECRET_KEY, DATABASES
 except ImportError:
     # SECURITY WARNING: keep the secret key used in production secret!
-    SECRET_KEY = 'django-insecure-0l0g@czio^^nu-7i-ee9lz96mioysy(gz0+r*)l!22oe=o8%9a'
+    SECRET_KEY = 'YOUR_SECRET_KEY'
     # Default database settings
 # Removed hardcoded DATABASES since imported from local_settings.py or fallback is used
 
