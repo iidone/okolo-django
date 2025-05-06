@@ -1,0 +1,116 @@
+@import "https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css";
+
+
+
+:root {
+    --custom-navbar-bg: #001613;
+  }
+  
+.navbar {
+    background-color: var(--custom-navbar-bg) !important;
+    min-height: 4.5rem;
+}
+
+
+.navbar-brand img {
+    height: 6vh;
+    max-height: none;
+}
+
+.navbar-item {
+    font-size: 1.1rem;
+    padding: 0.75rem 1.25rem;
+    color: #ffffff !important;
+}
+
+.navbar-item:hover {
+    background-color: #001d19;
+}
+
+.navbar-end .button {
+    font-size: 1.1rem;
+    height: auto;
+    padding: 0.75rem 1.5rem;
+}
+
+.navbar-item.has-dropdown .navbar-link {
+    color: #ffffff !important;
+    background-color: transparent !important;
+}
+
+.navbar-item.has-dropdown:hover .navbar-link {
+    background-color: #001d19 !important;
+    color: #ffffff !important;
+}
+
+.navbar-dropdown {
+    background-color: #001613 !important;
+    border-top: 2px solid #00d1b2 !important;
+}
+
+.navbar-dropdown .navbar-item {
+    color: #ffffff !important;
+    padding: 0.75rem 1.5rem !important;
+}
+
+.navbar-dropdown .navbar-item:hover {
+    background-color: #001d19 !important;
+    color: #00d1b2 !important;
+}
+
+.navbar-item.has-dropdown .navbar-link::after {
+    border-color: var(--accent-color) !important;
+    transition: all var(--animation-speed) ease;
+}
+
+.navbar-dropdown {
+    transition: all 0.3s ease;
+    opacity: 0;
+    display: block;
+    visibility: hidden;
+}
+
+.navbar-item.has-dropdown:hover .navbar-dropdown {
+    opacity: 1;
+    visibility: visible;
+}
+
+.navbar-item:not(.has-dropdown)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0rem;
+    right: 0rem;
+    height: 2px;
+    background-color: #00d1b2;
+    transform: scaleX(0);
+    transform-origin: bottom right;
+    transition: transform 0.3s ease;
+}
+
+.navbar-item:not(.has-dropdown):hover::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+}
+
+.navbar-item:not(.has-dropdown).is-active::after {
+    transform: scaleX(1);
+}
+
+.navbar-item.has-dropdown .navbar-link::after {
+    border-color: #00d1b2 !important;
+}
+
+.navbar-login-reg {
+    font-size: 1rem;
+    padding: 1rem 1.25rem;
+    color: #ffffff !important;
+}
+
+.navbar-burger span {
+    transition: all var(--animation-speed) ease;
+}
+  
+.navbar-burger:hover span {
+    background-color: var(--accent-color);
+}
