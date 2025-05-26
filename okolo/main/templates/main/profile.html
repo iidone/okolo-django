@@ -1,0 +1,211 @@
+{% extends 'main/layout.html' %}
+{% load static %}
+
+{% block title %}
+    Профиль {{ user.username }} | OKOLO
+{% endblock %}
+
+{% block content %}
+{% with hide_search=True %}
+<section class="section">
+    <div class="container">
+        <div class="columns">
+            <div class="column is-half">
+                <div class="box" style="background-color: #0d2b26; border: 1px solid #00d1b2;">
+                    <div class="content has-text-white">
+                        <h1 class="title has-text-centered has-text-white">Мой профиль</h1>
+                        
+                        <div class="profile-info">
+                            <div class="field is-horizontal">
+                                <div class="field-label">
+                                    <label class="label has-text-white">Имя:</label>
+                                </div>
+                                <div class="field-body">
+                                    <p class="has-text-white">{{ user.first_name|default:"Не указано" }}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="field is-horizontal">
+                                <div class="field-label">
+                                    <label class="label has-text-white">Фамилия:</label>
+                                </div>
+                                <div class="field-body">
+                                    <p class="has-text-white">{{ user.last_name|default:"Не указано" }}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="field is-horizontal">
+                                <div class="field-label">
+                                    <label class="label has-text-white">Email:</label>
+                                </div>
+                                <div class="field-body">
+                                    <p class="has-text-white">{{ user.email }}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="field is-horizontal">
+                                <div class="field-label">
+                                    <label class="label has-text-white">Никнейм:</label>
+                                </div>
+                                <div class="field-body">
+                                    <p class="has-text-white">{{ user.username }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="box" style="background-color: #0d2b26; border: 1px solid #00d1b2; margin-top: 20px;">
+                    <h2 class="title has-text-centered has-text-white">Мои объявления</h2>
+                    {% if user_ads %}
+                        <div class="columns is-multiline">
+                            {% for ad in user_ads %}
+                            <div class="column is-full">
+                                <div class="box profile-ad-box" style="background-color: #0a1a17; border: 1px solid #00d1b2;">
+                                    <article class="media">
+                                        <div class="media-left">
+                                            <figure class="image is-64x64">
+                                                {% if ad.image %}
+                                                <img src="{{ ad.image.url }}" alt="{{ ad.title }}">
+                                                {% else %}
+                                                <span class="icon is-large">
+                                                    <i class="fas fa-image"></i>
+                                                </span>
+                                                {% endif %}
+                                            </figure>
+                                        </div>
+                                        <div class="media-content">
+                                            <div class="content">
+                                                <p class="title is-5 has-text-white">{{ ad.title }}</p>
+                                                <p class="subtitle is-6 has-text-grey-light">
+                                                    {{ ad.get_category_display }} · 
+                                                    {{ ad.get_condition_display }} · 
+                                                    {{ ad.created_at|date:"d.m.Y" }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="media-right">
+                                            <a href="{% url 'current_ad' ad.id %}" class="button is-small is-success">
+                                                <span class="icon">
+                                                    <i class="fas fa-eye"></i>
+                                                </span>
+                                            </a>
+                                        </div>
+                                    </article>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="has-text-centered has-text-grey-light">У вас пока нет объявлений</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="column is-half">
+                <div class="box" style="background-color: #0d2b26; border: 1px solid #00d1b2;">
+                    <div class="level">
+                        <div class="level-left">
+                            <h2 class="title has-text-white">Предложения обмена</h2>
+                        </div>
+                        <div class="level-right">
+                            <div class="select">
+                                <select id="proposal-sort" onchange="window.location.href='?sort='+this.value">
+                                    <option value="all" {% if current_sort == 'all' %}selected{% endif %}>Все</option>
+                                    <option value="incoming" {% if current_sort == 'incoming' %}selected{% endif %}>Входящие</option>
+                                    <option value="outgoing" {% if current_sort == 'outgoing' %}selected{% endif %}>Исходящие</option>
+                                    <option value="pending" {% if current_sort == 'pending' %}selected{% endif %}>В ожидании</option>
+                                    <option value="accepted" {% if current_sort == 'accepted' %}selected{% endif %}>Принятые</option>
+                                    <option value="rejected" {% if current_sort == 'rejected' %}selected{% endif %}>Отклоненные</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+            
+                    {% if proposals %}
+                        {% for proposal in proposals %}
+                        <div class="box proposal-box" style="background-color: #0a1a17; border: 1px solid #00d1b2; margin-bottom: 15px;">
+                            <article class="media">
+                                <div class="media-left">
+                                    <figure class="image is-64x64">
+                                        {% if proposal.ad_sender.user == request.user %}
+                                            {% if proposal.ad_receiver.image %}
+                                            <img src="{{ proposal.ad_receiver.image.url }}" alt="{{ proposal.ad_receiver.title }}">
+                                            {% else %}
+                                            <span class="icon is-large">
+                                                <i class="fas fa-image"></i>
+                                            </span>
+                                            {% endif %}
+                                        {% else %}
+                                            {% if proposal.ad_sender.image %}
+                                            <img src="{{ proposal.ad_sender.image.url }}" alt="{{ proposal.ad_sender.title }}">
+                                            {% else %}
+                                            <span class="icon is-large">
+                                                <i class="fas fa-image"></i>
+                                            </span>
+                                            {% endif %}
+                                        {% endif %}
+                                    </figure>
+                                </div>
+                                <div class="media-content">
+                                    <div class="content">
+                                        <p class="title is-5 has-text-white">
+                                            {% if proposal.ad_sender.user == request.user %}
+                                                {{ proposal.ad_receiver.title }}
+                                            {% else %}
+                                                {{ proposal.ad_sender.title }}
+                                            {% endif %}
+                                        </p>
+                                        <p class="subtitle is-6 has-text-grey-light">
+                                            {% if proposal.ad_sender.user == request.user %}
+                                                Для: {{ proposal.ad_receiver.user.username }} ·
+                                            {% else %}
+                                                От: {{ proposal.ad_sender.user.username }} ·
+                                            {% endif %}
+                                            Статус: <span class="tag 
+                                                {% if proposal.status == 'accepted' %}is-success
+                                                {% elif proposal.status == 'rejected' %}is-danger
+                                                {% else %}is-warning{% endif %}">
+                                                {{ proposal.get_status_display }}
+                                            </span> · 
+                                            {{ proposal.created_at|date:"d.m.Y" }}
+                                        </p>
+                                        {% if proposal.comment %}
+                                        <p class="has-text-grey-light">{{ proposal.comment }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="media-right">
+                                    <div class="buttons">
+                                        <a href="{% url 'current_ad' proposal.ad_sender.id %}" class="button is-small is-success">
+                                            <span class="icon">
+                                                <i class="fas fa-eye"></i>
+                                            </span>
+                                        </a>
+                                        {% if proposal.ad_receiver.user == request.user and proposal.status == 'pending' %}
+                                        <a href="{% url 'update_proposal' proposal.id 'accepted' %}" class="button is-small is-success">
+                                            <span class="icon">
+                                                <i class="fas fa-check"></i>
+                                            </span>
+                                        </a>
+                                        <a href="{% url 'update_proposal' proposal.id 'rejected' %}" class="button is-small is-danger">
+                                            <span class="icon">
+                                                <i class="fas fa-times"></i>
+                                            </span>
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="has-text-grey-light">Нет предложений по выбранному фильтру</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endwith %}
+{% endblock %}

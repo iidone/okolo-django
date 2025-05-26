@@ -1,0 +1,166 @@
+{% extends 'main/layout.html' %}
+{% load static %}
+
+{% block title %}
+    Разместить объявление | OKOLO
+{% endblock %}
+
+{% block content %}
+{% with hide_search=True %}
+<section class="section">
+    <div class="container">
+        <div class="columns is-centered">
+            <div class="column is-half">
+                <div class="box" style="background-color: #0d2b26; border: 1px solid #00d1b2;">
+                    {% if editing %}
+                    <h1 class="title has-text-centered has-text-white">Редактирование</h1>
+                    {% else %}
+                    <h1 class="title has-text-centered has-text-white">Разместить объявление</h1>
+                    {% endif %}
+                     
+                    <form method="post" enctype="multipart/form-data" class="form">
+                        {% csrf_token %}
+                        
+                        <div class="field">
+                            <label class="label has-text-white">Заголовок</label>
+                            <div class="control">
+                                {{ form.title }}
+                            </div>
+                            {% if form.title.errors %}
+                            <p class="help is-danger">{{ form.title.errors }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="field">
+                            <label class="label has-text-white">Описание</label>
+                            <div class="control">
+                                {{ form.description }}
+                            </div>
+                            {% if form.description.errors %}
+                            <p class="help is-danger">{{ form.description.errors }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="field">
+                            <label class="label has-text-white">Изображение товара</label>
+                            {% if editing and ad.image %}
+                            <div class="mb-3">
+                                <p class="has-text-white">Текущее изображение:</p>
+                                <img src="{{ ad.image.url }}" alt="Current image" style="max-height: 200px;" id="current-image">
+                            </div>
+                            {% endif %}
+                            <div class="mb-3" id="image-preview-container" style="display: none;">
+                                <p class="has-text-white">Новое изображение:</p>
+                                <img id="image-preview" style="max-height: 200px;">
+                            </div>
+                            <div class="file has-name is-fullwidth">
+                                <label class="file-label">
+                                    <input class="file-input" type="file" name="image" id="id_image" accept="image/*">
+                                    <span class="file-cta">
+                                        <span class="file-icon">
+                                            <i class="fas fa-upload"></i>
+                                        </span>
+                                        <span class="file-label">
+                                            Выберите файл...
+                                        </span>
+                                    </span>
+                                    <span class="file-name" id="file-name">
+                                        {% if editing and ad.image %}{{ ad.image.name }}{% else %}Файл не выбран{% endif %}
+                                    </span>
+                                </label>
+                            </div>
+                            {% if form.image.errors %}
+                            <p class="help is-danger">{{ form.image.errors }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="columns">
+                            <div class="column">
+                                <div class="field">
+                                    <label class="label has-text-white">Категория</label>
+                                    <div class="control">
+                                        <div class="select is-fullwidth">
+                                            {{ form.category }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div class="field">
+                                    <label class="label has-text-white">Состояние</label>
+                                    <div class="control">
+                                        <div class="select is-fullwidth">
+                                            {{ form.condition }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label class="label has-text-white">Контакт для связи</label>
+                            <div class="control">
+                                {{ form.contact_info }}
+                            </div>
+                            {% if form.contact_info.errors %}
+                            <p class="help is-danger">{{ form.contact_info.errors }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="field is-grouped is-grouped-centered">
+                            <div class="control">
+                                <button type="submit" class="button is-success is-rounded">
+                                    <span class="icon">
+                                        <i class="fas fa-save"></i>
+                                    </span>
+                                    <span>{% if editing %}Сохранить{% else %}Разместить{% endif %}</span>
+                                </button>
+                            </div>
+                            {% if editing %}
+                            <div class="control">
+                                <a href="javascript:history.back()" class="button is-light is-rounded">
+                                    <span class="icon">
+                                        <i class="fas fa-arrow-left"></i>
+                                    </span>
+                                    <span>Назад</span>
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.getElementById('id_image').onchange = function() {
+        const fileInput = this;
+        const fileName = fileInput.files[0] ? fileInput.files[0].name : "Файл не выбран";
+        document.getElementById('file-name').textContent = fileName;
+        
+        if (fileInput.files && fileInput.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const previewContainer = document.getElementById('image-preview-container');
+                const previewImage = document.getElementById('image-preview');
+                
+                previewImage.src = e.target.result;
+                previewContainer.style.display = 'block';
+                
+                const currentImage = document.getElementById('current-image');
+                if (currentImage) {
+                    currentImage.style.display = 'none';
+                }
+            };
+            
+            reader.readAsDataURL(fileInput.files[0]);
+        } else {
+            document.getElementById('image-preview-container').style.display = 'none';
+        }
+    };
+</script>
+{% endwith %}
+{% endblock %}

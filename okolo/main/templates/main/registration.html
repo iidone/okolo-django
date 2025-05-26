@@ -1,0 +1,157 @@
+{% extends 'main/layout.html' %}
+{% load static %}
+
+{% block title %}
+    Регистрация
+{% endblock %}
+
+{% block content %}
+{% with hide_search=True %}
+<section class="section">
+    <div class="container">
+        <div class="columns is-centered">
+            <div class="column is-half">
+                <div class="box" style="background-color: #0d2b26; border: 1px solid #00d1b2;">
+                    <h1 class="title has-text-centered has-text-white">Регистрация</h1>
+                    
+                    {% if global_error %}
+                    <div class="notification is-danger">
+                        {{ global_error }}
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post" class="form">
+                        {% csrf_token %}
+                        
+                        <div class="field">
+                            <label class="label has-text-white">Имя пользователя</label>
+                            <div class="control has-icons-left">
+                                <input class="input {% if errors.username %}is-danger{% endif %}" 
+                                       type="text" 
+                                       name="username" 
+                                       value="{{ form_data.username|default:'' }}"
+                                       placeholder="username" 
+                                       required>
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                            </div>
+                            {% if errors.username %}
+                            <p class="help is-danger">{{ errors.username }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="field">
+                            <label class="label has-text-white">Email</label>
+                            <div class="control has-icons-left">
+                                <input class="input {% if errors.email %}is-danger{% endif %}" 
+                                       type="email" 
+                                       name="email" 
+                                       value="{{ form_data.email|default:'' }}"
+                                       placeholder="email@example.com" 
+                                       required>
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                            </div>
+                            {% if errors.email %}
+                            <p class="help is-danger">{{ errors.email }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="field">
+                            <label class="label has-text-white">Имя</label>
+                            <div class="control has-icons-left">
+                                <input class="input" 
+                                       type="text" 
+                                       name="first_name" 
+                                       value="{{ form_data.first_name|default:'' }}"
+                                       placeholder="Иван">
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-id-card"></i>
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="field">
+                            <label class="label has-text-white">Фамилия</label>
+                            <div class="control has-icons-left">
+                                <input class="input" 
+                                       type="text" 
+                                       name="last_name" 
+                                       value="{{ form_data.last_name|default:'' }}"
+                                       placeholder="Иванов">
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-id-card"></i>
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="field">
+                            <label class="label has-text-white">Пароль</label>
+                            <div class="control has-icons-left">
+                                <input class="input {% if errors.password1 %}is-danger{% endif %}" 
+                                       type="password" 
+                                       name="password1" 
+                                       placeholder="********" 
+                                       required>
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                            </div>
+                            {% if errors.password1 %}
+                            <p class="help is-danger">{{ errors.password1 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="field">
+                            <label class="label has-text-white">Подтверждение пароля</label>
+                            <div class="control has-icons-left">
+                                <input class="input {% if errors.password2 %}is-danger{% endif %}" 
+                                       type="password" 
+                                       name="password2" 
+                                       placeholder="********" 
+                                       required>
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                            </div>
+                            {% if errors.password2 %}
+                            <p class="help is-danger">{{ errors.password2 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="field is-grouped is-grouped-centered">
+                            <div class="control">
+                                <button type="submit" class="button is-primary is-rounded" style="background-color: #00d1b2; border-color: #00d1b2;">
+                                    Зарегистрироваться
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <div class="has-text-centered mt-4">
+                        <p class="has-text-white">Уже есть аккаунт? <a href="{% url 'autorization' %}" class="has-text-primary">Войти</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .input.is-danger {
+        border-color: #ff3860;
+    }
+    .help.is-danger {
+        color: #ff3860;
+    }
+    .notification.is-danger {
+        background-color: #ff3860;
+        color: white;
+    }
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endwith %}
+{% endblock %}

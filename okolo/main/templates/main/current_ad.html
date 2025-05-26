@@ -1,0 +1,205 @@
+{% extends 'main/layout.html' %}
+{% load static %}
+
+
+{% block title %}
+    {{ ad.title }} | OKOLO
+{% endblock %}
+
+{% block content %}
+{% with hide_search=True %}
+<section class="section">
+    <div class="container">
+        <div class="columns is-centered">
+            <div class="column is-half">
+                <div class="box" style="background-color: #0d2b26; border: 1px solid #00d1b2;">
+                    <h1 class="title has-text-centered has-text-white">{{ ad.title }}</h1>
+                    
+                    <div class="content has-text-white">
+                        <div class="has-text-centered mb-4">
+                            {% if ad.image %}
+                            <img src="{{ ad.image.url }}" alt="{{ ad.title }}" style="max-height: 300px;">
+                            {% else %}
+                            <div class="has-background-grey-darker" style="height: 200px; display: flex; align-items: center; justify-content: center;">
+                                <span class="icon is-large">
+                                    <i class="fas fa-image fa-3x"></i>
+                                </span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <p>{{ ad.description }}</p>
+                        
+                        <div class="mt-5">
+                            <p><strong>Категория:</strong> {{ ad.get_category_display }}</p>
+                            <p><strong>Состояние:</strong> {{ ad.get_condition_display }}</p>
+                            <p><strong>Дата публикации:</strong> {{ ad.created_at|date:"d.m.Y H:i" }}</p>
+                            <p><strong>Контакт для связи:</strong> {{ ad.contact_info }}</p>
+                            <p><strong>Автор:</strong> {{ ad.user.first_name }} {{ ad.user.last_name }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="has-text-centered mt-4">
+                        <div class="buttons is-centered">
+                            <a href="javascript:history.back()" class="button is-primary">
+                                <span class="icon">
+                                    <i class="fas fa-arrow-left"></i>
+                                </span>
+                                <span>Назад</span>
+                            </a>
+                            {% if ad.user != request.user and request.user.is_authenticated %}
+                            <button class="button is-warning" onclick="toggleExchangeForm()">
+                                <span class="icon">
+                                    <i class="fas fa-exchange-alt"></i>
+                                </span>
+                                <span>Предложить обмен</span>
+                            </button>
+                            {% endif %}
+                            {% if ad.user == request.user %}
+                            <a href="{% url 'edit_ad' ad.id %}" class="button is-info">
+                                <span class="icon">
+                                    <i class="fas fa-edit"></i>
+                                </span>
+                                <span>Редактировать</span>
+                            </a>
+                            <button class="button is-danger" onclick="confirmDelete()">
+                                <span class="icon">
+                                    <i class="fas fa-trash"></i>
+                                </span>
+                                <span>Удалить</span>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if exchange_form and user_ads %}
+                    <div id="exchangeForm" class="exchange-form-container">
+                        <form method="post" action="{% url 'current_ad' ad.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="exchange_proposal" value="1">
+
+                            <div class="field">
+                                <label class="label has-text-white">Выберите ваше объявление для обмена:</label>
+                                <div class="columns is-multiline">
+                                    {% for user_ad in user_ads %}
+                                    <div class="column is-half">
+                                        <div class="box exchange-ad-box {% if selected_ad_id == user_ad.id|stringformat:'i' %}selected{% endif %}" 
+                                             onclick="selectAd(this, '{{ user_ad.id }}')">
+                                            <input type="radio" name="selected_ad" value="{{ user_ad.id }}" 
+                                                   id="ad_{{ user_ad.id }}" style="display: none;"
+                                                   {% if selected_ad_id == user_ad.id|stringformat:'i' %}checked{% endif %}>
+                                            <article class="media">
+                                                <div class="media-left">
+                                                    <figure class="image">
+                                                        {% if user_ad.image %}
+                                                        <img src="{{ user_ad.image.url }}" alt="{{ user_ad.title }}">
+                                                        {% else %}
+                                                        <span class="icon is-large">
+                                                            <i class="fas fa-image"></i>
+                                                        </span>
+                                                        {% endif %}
+                                                    </figure>
+                                                </div>
+                                                <div class="media-content">
+                                                    <p class="title is-5 has-text-white">
+                                                        <span>{{ user_ad.title }}</span>
+                                                    </p>
+                                                    <p class="subtitle is-6 has-text-grey-light">{{ user_ad.get_category_display }}</p>
+                                                </div>
+                                            </article>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label class="label has-text-white">Получатель: {{ ad.user.first_name }} {{ ad.user.last_name }}</label>
+                                <label class="label has-text-white">Комментарий к предложению:</label>
+                                {{ exchange_form.comment }}
+                            </div>
+
+                            <div class="field">
+                                <button type="submit" class="button is-success is-fullwidth" id="send-proposal-btn">
+                                    <span class="icon">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </span>
+                                    <span>Отправить предложение</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="modal" id="deleteModal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Вы уверены, что хотите удалить это объявление?</p>
+        </header>
+        <footer class="modal-card-foot">
+            <form method="post" action="{% url 'delete_ad' ad.id %}" id="deleteForm">
+                {% csrf_token %}
+                <button type="submit" class="button is-danger">Удалить</button>
+                <button type="button" class="button" onclick="closeModal()">Отмена</button>
+            </form>
+        </footer>
+    </div>
+</div>
+
+<script>
+    function confirmDelete() {
+        document.getElementById('deleteModal').classList.add('is-active');
+    }
+    
+    function closeModal() {
+        document.getElementById('deleteModal').classList.remove('is-active');
+    }
+
+    function toggleExchangeForm() {
+        const form = document.getElementById('exchangeForm');
+        const isShowing = form.classList.contains('show');
+        
+        if (!isShowing) {
+            form.style.transition = 'none';
+            form.classList.add('show');
+
+            const formHeight = form.offsetHeight;
+            form.style.maxHeight = formHeight + 'px';
+            form.style.overflow = 'visible';
+
+            setTimeout(() => {
+                form.style.transition = 'max-height 0.5s ease-out, opacity 0.3s ease';
+            }, 10);
+
+            setTimeout(() => {
+                form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 50);
+        } else {
+            form.classList.remove('show');
+            setTimeout(() => {
+                form.style.maxHeight = '0';
+                form.style.overflow = 'hidden';
+            }, 10);
+        }
+    }
+
+    function selectAd(box, adId) {
+        document.querySelectorAll('.exchange-ad-box').forEach(b => {
+            b.classList.remove('selected');
+        });
+
+        box.classList.add('selected');
+
+        const radio = document.getElementById('ad_' + adId);
+        radio.checked = true;
+    }
+</script>
+
+{% endwith %}
+{% endblock %}
